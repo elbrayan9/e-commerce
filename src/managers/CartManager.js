@@ -1,10 +1,33 @@
 import { promises as fs } from 'fs';
+// 1. Importamos el módulo 'path' para manejar rutas de directorios.
+import path from 'path';
 
 // Esta clase manejará la lógica de los carritos.
 export class CartManager {
-    constructor(path) {
-        this.path = path; // La ruta al archivo de carritos.
+    constructor(filePath) {
+        this.path = filePath; // La ruta al archivo de carritos.
+        // 2. Llamamos a la función de inicialización para asegurar que el archivo exista.
+        this._initialize();
     }
+
+    // 3. Nuevo método privado para asegurar que el archivo y su directorio existan.
+    async _initialize() {
+        try {
+            const dirPath = path.dirname(this.path);
+            await fs.mkdir(dirPath, { recursive: true });
+            await fs.access(this.path);
+        } catch (error) {
+            // Si el archivo no existe, lo creamos con un array vacío.
+            if (error.code === 'ENOENT') {
+                await fs.writeFile(this.path, JSON.stringify([], null, 2));
+                console.log(`Archivo creado en: ${this.path}`);
+            } else {
+                throw error;
+            }
+        }
+    }
+
+    // --- El resto de los métodos permanecen exactamente iguales ---
 
     // Método para leer los carritos del archivo.
     async getCarts() {
@@ -12,7 +35,7 @@ export class CartManager {
             const data = await fs.readFile(this.path, 'utf-8');
             return JSON.parse(data);
         } catch (error) {
-            return []; // Si no existe, empezamos con un array vacío.
+            return []; // Si hay un error, empezamos con un array vacío.
         }
     }
 
@@ -20,7 +43,6 @@ export class CartManager {
     async createCart() {
         const carts = await this.getCarts();
         
-        // Generamos un ID único.
         const newId = carts.length > 0 ? Math.max(...carts.map(c => c.id)) + 1 : 1;
         
         const newCart = {

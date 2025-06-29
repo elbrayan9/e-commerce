@@ -1,0 +1,29 @@
+<h1>Lista de Productos (Tiempo Real con WebSockets)</h1>
+
+<h2>Productos Actuales</h2>
+<ul id="products-list">
+    {{!-- La lista de productos será renderizada aquí por JavaScript --}}
+</ul>
+
+<hr>
+
+<h2>Agregar un Producto</h2>
+<form id="create-product-form">
+    <input type="text" name="title" placeholder="Título" required>
+    <input type="text" name="description" placeholder="Descripción" required>
+    <input type="text" name="code" placeholder="Código" required>
+    <input type="number" name="price" placeholder="Precio" step="0.01" required>
+    <input type="number" name="stock" placeholder="Stock" required>
+    <input type="text" name="category" placeholder="Categoría" required>
+    <button type="submit">Agregar Producto</button>
+</form>
+
+<h2>Eliminar un Producto</h2>
+<form id="delete-product-form">
+    <input type="number" name="id" placeholder="ID del Producto" required>
+    <button type="submit">Eliminar Producto</button>
+</form>
+
+{{!-- Importante: Cargamos el cliente de socket.io y nuestro script --}}
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/realtime.js"></script>
