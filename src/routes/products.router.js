@@ -1,90 +1,67 @@
 import { Router } from 'express';
-// No necesitamos el ProductManager aquí si lo manejamos desde app.js para los sockets,
-// pero para las rutas HTTP sigue siendo necesario.
-import { ProductManager } from '../managers/ProductManager.js';
+import { ProductModel } from '../models/product.model.js'; // 1. Importamos el Modelo, no el Manager
 
-// NOTA: El path a products.json debe ser consistente con el usado en app.js y views.router.js
-// para evitar inconsistencias. Lo ideal es instanciarlo una sola vez y pasarlo, pero
-// por ahora mantenemos la simplicidad de la consigna.
-const productManager = new ProductManager('src/data/products.json');
 const router = Router();
 
-
-// GET /api/products/
+// GET /api/products - Profesionalizado con paginación, filtros y ordenamiento
 router.get('/', async (req, res) => {
     try {
-        const limit = req.query.limit ? parseInt(req.query.limit) : undefined;
-        const products = await productManager.getProducts();
+        const { limit = 10, page = 1, sort, query } = req.query;
 
-        if (limit) {
-            res.json(products.slice(0, limit));
-        } else {
-            res.json(products);
+        // 2. Configuración de opciones para la paginación y ordenamiento
+        const options = {
+            page: parseInt(page),
+            limit: parseInt(limit),
+            lean: true // Para que devuelva objetos JSON simples
+        };
+
+        if (sort) {
+            // Ordena por precio ascendente ('asc') o descendente ('desc')
+            options.sort = { price: sort === 'asc' ? 1 : -1 };
         }
+
+        // 3. Configuración del filtro de búsqueda
+        const filter = {};
+        if (query) {
+            // Buscamos por categoría (puedes expandir esto a otros campos)
+            filter.category = { $regex: query, $options: "i" };
+        }
+
+        // 4. Realizamos la consulta paginada a la base de datos
+        const result = await ProductModel.paginate(filter, options);
+
+        // 5. Construcción del objeto de respuesta como pide la consigna
+        const response = {
+            status: 'success',
+            payload: result.docs,
+            totalPages: result.totalPages,
+            prevPage: result.prevPage,
+            nextPage: result.nextPage,
+            page: result.page,
+            hasPrevPage: result.hasPrevPage,
+            hasNextPage: result.hasNextPage,
+            prevLink: result.hasPrevPage ? `/api/products?page=${result.prevPage}&limit=${limit}&sort=${sort || ''}&query=${query || ''}` : null,
+            nextLink: result.hasNextPage ? `/api/products?page=${result.nextPage}&limit=${limit}&sort=${sort || ''}&query=${query || ''}` : null
+        };
+        
+        res.json(response);
+
     } catch (error) {
-        res.status(500).json({ error: "Error al obtener los productos." });
+        res.status(500).json({ status: 'error', message: 'Error al obtener productos: ' + error.message });
     }
 });
 
-// GET /api/products/:pid
-router.get('/:pid', async (req, res) => {
-    try {
-        const productId = parseInt(req.params.pid);
-        const product = await productManager.getProductById(productId);
-        res.json(product);
-    } catch (error) {
-        res.status(404).json({ error: error.message });
-    }
-});
 
-// POST /api/products/
+// Las demás rutas (GET by ID, POST, PUT, DELETE) también deben usar el modelo.
+// Ejemplo de POST:
 router.post('/', async (req, res) => {
     try {
-        const newProduct = await productManager.addProduct(req.body);
-        
-        // --- MODIFICACIÓN: Emitir evento por WebSocket ---
-        // Obtenemos la lista actualizada de productos
-        const products = await productManager.getProducts();
-        // Usamos el objeto 'io' que adjuntamos a 'req' en app.js
-        // y emitimos el evento 'updateProducts' con la lista actualizada.
-        req.io.emit('updateProducts', products);
-
-        res.status(201).json(newProduct);
+        const newProduct = await ProductModel.create(req.body);
+        res.status(201).json({ status: 'success', payload: newProduct });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(400).json({ status: 'error', message: error.message });
     }
 });
 
-// PUT /api/products/:pid
-router.put('/:pid', async (req, res) => {
-    try {
-        const productId = parseInt(req.params.pid);
-        const updatedProduct = await productManager.updateProduct(productId, req.body);
-        
-        // --- MODIFICACIÓN: Emitir evento por WebSocket ---
-        const products = await productManager.getProducts();
-        req.io.emit('updateProducts', products);
-
-        res.json(updatedProduct);
-    } catch (error) {
-        res.status(404).json({ error: error.message });
-    }
-});
-
-// DELETE /api/products/:pid
-router.delete('/:pid', async (req, res) => {
-    try {
-        const productId = parseInt(req.params.pid);
-        const result = await productManager.deleteProduct(productId);
-        
-        // --- MODIFICACIÓN: Emitir evento por WebSocket ---
-        const products = await productManager.getProducts();
-        req.io.emit('updateProducts', products);
-
-        res.json(result);
-    } catch (error) {
-        res.status(404).json({ error: error.message });
-    }
-});
 
 export default router;

@@ -1,0 +1,24 @@
+<h1>Nuestros Productos</h1>
+
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+    {{#each products}}
+        <article style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
+            <h3>{{this.title}}</h3>
+            <p>{{this.description}}</p>
+            <p><strong>Categoría:</strong> {{this.category}}</p>
+            <p><strong>Precio:</strong> ${{this.price}}</p>
+            <p><strong>Stock:</strong> {{this.stock}}</p>
+            <button onclick="alert('Funcionalidad de agregar al carrito pendiente')">Agregar al Carrito</button>
+        </article>
+    {{/each}}
+</div>
+
+<div class="pagination" style="text-align: center; padding: 20px;">
+    {{#if hasPrevPage}}
+        <a href="{{prevLink}}" style="padding: 10px; border: 1px solid #ccc;">Anterior</a>
+    {{/if}}
+    <span style="margin: 0 15px; font-weight: bold;">Página {{page}} de {{totalPages}}</span>
+    {{#if hasNextPage}}
+        <a href="{{nextLink}}" style="padding: 10px; border: 1px solid #ccc;">Siguiente</a>
+    {{/if}}
+</div>
