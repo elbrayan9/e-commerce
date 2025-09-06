@@ -2,26 +2,33 @@
 
 Este es el proyecto final del curso de Backend, una aplicación de servidor desarrollada con Node.js y Express para gestionar productos y carritos de un e-commerce. La persistencia de datos se maneja con una base de datos NoSQL (MongoDB) a través de Mongoose.
 
+Este proyecto también incluye un sistema completo de registro y autenticación de usuarios utilizando Passport y JSON Web Tokens (JWT).
+
 ## ✨ Características Principales
 
 - **Gestión de Productos**: API REST completa para crear, leer, actualizar y eliminar productos.
-- **Listado Avanzado de Productos**: El endpoint principal de productos cuenta con:
-    - **Paginación**: para manejar grandes catálogos de productos.
-    - **Filtros**: para buscar productos por categoría o disponibilidad.
-    - **Ordenamiento**: para ordenar los productos por precio (ascendente o descendente).
+- **Listado Avanzado de Productos**: El endpoint principal de productos cuenta con paginación, filtros y ordenamiento.
 - **Gestión de Carritos**: API REST profesional para una gestión completa de los carritos de compra.
-- **Vistas con Handlebars**: Vistas renderizadas desde el servidor para visualizar los productos con paginación y el contenido de un carrito específico.
-- **Persistencia en MongoDB**: Toda la información se almacena de forma eficiente y escalable en una base de datos MongoDB Atlas.
-- **Relaciones de Datos**: Uso de `populate` de Mongoose para relacionar los carritos con los productos de forma eficiente.
+- **Autenticación de Usuarios**: Sistema seguro de registro y login.
+    - **Registro de usuarios** con encriptación de contraseñas (bcrypt).
+    - **Login con JWT**: La autenticación se maneja a través de JSON Web Tokens, que se almacenan en cookies seguras (HTTP-only).
+    - **Rutas Protegidas**: Uso de Passport.js para proteger rutas y verificar la identidad del usuario.
+- **Vistas con Handlebars**: Vistas renderizadas desde el servidor para visualizar los productos y el contenido de un carrito.
+- **Persistencia en MongoDB**: Toda la información se almacena de forma eficiente y escalable.
+- **Variables de Entorno**: Manejo seguro de datos sensibles (como la URL de la base de datos) a través de archivos `.env`.
 
 ## 🛠️ Tecnologías Utilizadas
 
-- **Node.js**: Entorno de ejecución de JavaScript.
-- **Express**: Framework para la creación del servidor y la API REST.
-- **MongoDB**: Base de datos NoSQL orientada a documentos.
-- **Mongoose**: ODM (Object Document Mapper) para modelar y interactuar con la base de datos MongoDB.
-- **Mongoose Paginate v2**: Plugin para implementar paginación en las consultas de Mongoose.
-- **Express Handlebars**: Motor de plantillas para renderizar las vistas del lado del servidor.
+- **Node.js** y **Express**
+- **MongoDB** y **Mongoose**
+- **Mongoose Paginate v2**
+- **Express Handlebars**
+- **Passport**: Middleware para autenticación.
+- **Passport-JWT**: Estrategia de Passport para manejar JWT.
+- **JSON Web Token (jsonwebtoken)**: Para la creación y verificación de tokens.
+- **Bcrypt**: Para el hasheo de contraseñas.
+- **Cookie-Parser**: Para el manejo de cookies.
+- **Dotenv**: Para el manejo de variables de entorno.
 
 ## 🚀 Instalación y Puesta en Marcha
 
@@ -34,18 +41,15 @@ cd nombre-de-la-carpeta
 ```
 
 ### 2. Instalar dependencias
-Asegúrate de tener Node.js instalado. Luego, ejecuta:
 ```bash
 npm install
 ```
 
 ### 3. Configurar variables de entorno
-Crea un archivo `.env` en la raíz del proyecto (la carpeta `BACKEND`). Este archivo guardará tu URL de conexión a la base de datos de forma segura.
-
+Crea un archivo `.env` en la raíz del proyecto y añade tu URL de conexión a MongoDB.
 ```
-MONGO_URI="mongodb+srv://tu_usuario:tu_password@tu_cluster_url/ecommerce?retryWrites=true&w=majority"
+MONGO_URI="tu_url_de_conexion_a_mongodb"
 ```
-**Nota:** Deberás modificar tu archivo `app.js` para que lea esta variable en lugar de tener la URL directamente en el código.
 
 ### 4. Iniciar el servidor
 Para iniciar el servidor en modo de desarrollo (con reinicio automático), usa:
@@ -60,44 +64,49 @@ El servidor estará corriendo en `http://localhost:8080`.
 
 ## 📚 Documentación de la API
 
+### Sesiones (`/api/sessions`)
+
+- **`POST /register`**: Registra un nuevo usuario.
+    - **Body (JSON)**:
+      ```json
+      {
+        "first_name": "Brian",
+        "last_name": "Oviedo",
+        "email": "brian.test@correo.com",
+        "age": 25,
+        "password": "miPassword123"
+      }
+      ```
+
+- **`POST /login`**: Inicia sesión con un usuario existente. Si las credenciales son correctas, devuelve una cookie `coderCookieToken` con el JWT.
+    - **Body (JSON)**:
+      ```json
+      {
+        "email": "brian.test@correo.com",
+        "password": "miPassword123"
+      }
+      ```
+
+- **`GET /current`**: Obtiene los datos del usuario actualmente logueado. Requiere que la cookie `coderCookieToken` sea enviada en la petición.
+
 ### Productos (`/api/products`)
 
 - **`GET /`**: Obtiene una lista paginada de productos.
     - **Query Params**:
-        - `limit` (Number): Cantidad de productos por página. Default: 10.
-        - `page` (Number): Número de la página a obtener. Default: 1.
-        - `sort` (String): Ordenar por precio. Valores: `asc` o `desc`.
-        - `query` (String): Filtrar por categoría.
+        - `limit` (Number), `page` (Number), `sort` (String: 'asc'/'desc'), `query` (String: categoría).
 
 - **`POST /`**: Crea un nuevo producto.
-    - **Body (JSON)**:
-      ```json
-      {
-        "title": "Producto de Ejemplo",
-        "description": "Descripción del producto",
-        "code": "PROD123",
-        "price": 1500,
-        "stock": 25,
-        "category": "Ejemplos"
-      }
-      ```
 
 ### Carritos (`/api/carts`)
 
 - **`POST /`**: Crea un nuevo carrito vacío.
-- **`GET /:cid`**: Obtiene un carrito por su ID con todos sus productos detallados (usando `populate`).
-- **`POST /:cid/product/:pid`**: Agrega un producto a un carrito. Si el producto ya existe, incrementa su cantidad.
-- **`PUT /:cid/products/:pid`**: Actualiza la cantidad de un producto específico en el carrito.
-    - **Body (JSON)**:
-      ```json
-      {
-        "quantity": 5
-      }
-      ```
-- **`DELETE /:cid/products/:pid`**: Elimina un producto específico del carrito.
-- **`DELETE /:cid`**: Elimina todos los productos del carrito (lo vacía).
+- **`GET /:cid`**: Obtiene un carrito por su ID con todos sus productos detallados.
+- **`POST /:cid/product/:pid`**: Agrega un producto a un carrito.
+- **`PUT /:cid/products/:pid`**: Actualiza la cantidad de un producto en el carrito.
+- **`DELETE /:cid/products/:pid`**: Elimina un producto del carrito.
+- **`DELETE /:cid`**: Vacía un carrito.
 
 ## 📄 Vistas del Servidor
 
-- **`/products`**: Muestra la lista de productos paginada. Es la vista principal de la aplicación.
-- **`/carts/:cid`**: Muestra el detalle de un carrito de compras específico con la lista de productos que contiene.
+- **`/products`**: Muestra la lista de productos paginada.
+- **`/carts/:cid`**: Muestra el detalle de un carrito de compras específico.
