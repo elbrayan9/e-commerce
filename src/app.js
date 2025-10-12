@@ -1,21 +1,21 @@
-import express from 'express';
-import handlebars from 'express-handlebars';
-import mongoose from 'mongoose';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import dotenv from 'dotenv';
-import cookieParser from 'cookie-parser';
-import passport from 'passport';
-import initializePassport from './config/passport.config.js';
+import express from "express";
+import handlebars from "express-handlebars";
+import mongoose from "mongoose";
+import path from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+import passport from "passport";
+import initializePassport from "./config/passport.config.js";
 
 // Cargar variables de entorno
 dotenv.config();
 
 // Routers
-import productsRouter from './routes/products.router.js';
-import cartsRouter from './routes/carts.router.js';
-import viewsRouter from './routes/views.router.js';
-import sessionsRouter from './routes/sessions.router.js'; // <-- Faltaba importar esto
+import productsRouter from "./routes/products.router.js";
+import cartsRouter from "./routes/carts.router.js";
+import viewsRouter from "./routes/views.router.js";
+import sessionsRouter from "./routes/sessions.router.js";
 
 // --- Configuración ---
 const __filename = fileURLToPath(import.meta.url);
@@ -26,31 +26,31 @@ const PORT = 8080;
 // --- Middlewares ---
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(cookieParser()); // Middleware para cookies
+app.use(express.static(path.join(__dirname, "public")));
+app.use(cookieParser());
 
 // --- Passport ---
-initializePassport(); // Inicializamos la estrategia de Passport
+initializePassport();
 app.use(passport.initialize());
 
 // --- Motor de Plantillas ---
-app.engine('handlebars', handlebars.engine());
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'handlebars');
+app.engine("handlebars", handlebars.engine());
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "handlebars");
 
 // --- Conexión a MongoDB ---
 const MONGO_URI = process.env.MONGO_URI;
-
-mongoose.connect(MONGO_URI)
-    .then(() => console.log("✅ Conectado a la base de datos"))
-    .catch(error => console.error("❌ Error de conexión:", error));
+mongoose
+  .connect(MONGO_URI)
+  .then(() => console.log("✅ Conectado a la base de datos"))
+  .catch((error) => console.error("❌ Error de conexión:", error));
 
 // --- Rutas ---
-app.use('/', viewsRouter);
-app.use('/api/products', productsRouter);
-app.use('/api/carts', cartsRouter);
-app.use('/api/sessions', sessionsRouter); // <-- Faltaba usar el router aquí
+app.use("/", viewsRouter);
+app.use("/api/products", productsRouter);
+app.use("/api/carts", cartsRouter);
+app.use("/api/sessions", sessionsRouter);
 
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);
+  console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);
 });
