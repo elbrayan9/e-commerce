@@ -12,6 +12,7 @@ Bienvenido al backend de nuestro E-commerce, una robusta API RESTful construida 
   - Registro de usuarios con **encriptación de contraseñas** (bcrypt).
   - Login seguro mediante **JSON Web Tokens (JWT)** almacenados en cookies `HttpOnly`.
   - Sistema de **roles (Usuario/Administrador)** para proteger endpoints y restringir acciones específicas.
+- **Generación de Datos de Prueba (Mocking)**: Endpoints dedicados para generar datos de prueba (`faker-js`) tanto simulados como para inserción directa en la base de datos, facilitando el desarrollo y las pruebas de rendimiento.
 - **Seguridad de Datos**: Uso de **DTO (Data Transfer Objects)** para evitar la exposición de información sensible del usuario en las respuestas de la API.
 - **Manejo Seguro de Secretos**: Configuración a través de **variables de entorno** (`.env`) para proteger credenciales de la base de datos.
 - **Vistas Renderizadas desde el Servidor**: Páginas básicas con Handlebars para la visualización de productos y carritos.
@@ -36,6 +37,7 @@ El servidor sigue una arquitectura en capas para separar responsabilidades, haci
 - **Seguridad**: JSON Web Token (`jsonwebtoken`), `bcrypt`
 - **Manejo de Peticiones**: `cookie-parser`
 - **Variables de Entorno**: `dotenv`
+- **Generación de Datos (Mocking)**: `@faker-js/faker`
 - **IDs Únicos**: `nanoid` (para códigos de ticket)
 - **Vistas**: Express Handlebars
 
@@ -73,6 +75,12 @@ node src/app.js
 El servidor estará corriendo en `http://localhost:8080`.
 
 ## 📚 Documentación de la API
+
+### Mocks y Pruebas (`/api/mocks`)
+
+- **`GET /mockingusers`**: Genera y devuelve 50 usuarios simulados (falsos) al vuelo, sin guardar en la base de datos.
+- **`POST /generateData`**: Genera e inserta usuarios reales en la base de datos con datos de prueba. Recibe un body opcional: `{ "users": 5 }` para especificar la cantidad.
+- **`GET /getgeneratedusers`**: (Endpoint de diagnóstico) Devuelve una lista de todos los usuarios actualmente en la base de datos.
 
 ### Sesiones (`/api/sessions`)
 
