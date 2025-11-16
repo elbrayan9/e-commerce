@@ -1,11 +1,9 @@
 import { faker } from "@faker-js/faker";
 import bcrypt from "bcrypt";
 
-// Esta función genera un usuario simulado
+// --- LÓGICA DE USUARIOS (Existente) ---
 export const generateMockUser = () => {
-  // Hasheamos la contraseña "coder123" como se solicita
   const hashedPassword = bcrypt.hashSync("coder123", 10);
-
   return {
     _id: faker.database.mongodbObjectId(),
     first_name: faker.person.firstName(),
@@ -14,12 +12,11 @@ export const generateMockUser = () => {
     age: faker.number.int({ min: 18, max: 70 }),
     password: hashedPassword,
     role: faker.helpers.arrayElement(["user", "admin"]),
-    cart: faker.database.mongodbObjectId(), // Asignamos un ID de carrito falso
-    pets: [], // Array vacío como se solicita
+    cart: faker.database.mongodbObjectId(),
+    pets: [],
   };
 };
 
-// Esta función genera un usuario con datos válidos para INSERTAR en la BD
 export const generateRealUser = () => {
   const hashedPassword = bcrypt.hashSync("coder123", 10);
   return {
@@ -29,7 +26,27 @@ export const generateRealUser = () => {
     age: faker.number.int({ min: 18, max: 70 }),
     password: hashedPassword,
     role: faker.helpers.arrayElement(["user", "admin"]),
-    pets: [], // Array vacío como se solicita
-    // El 'cart' se asignará en la lógica del router
+    pets: [],
+  };
+};
+
+// --- LÓGICA DE MASCOTAS (Nueva) ---
+
+// Genera mascota simulada (para GET /mockingpets)
+export const generateMockPet = () => {
+  return {
+    _id: faker.database.mongodbObjectId(),
+    name: faker.animal.dog(),
+    species: faker.helpers.arrayElement(["Perro", "Gato", "Pájaro", "Reptil"]),
+    birthDate: faker.date.past(),
+  };
+};
+
+// Genera mascota real (para POST /generateData)
+export const generateRealPet = () => {
+  return {
+    name: faker.animal.dog(),
+    species: faker.helpers.arrayElement(["Perro", "Gato", "Pájaro", "Reptil"]),
+    birthDate: faker.date.past(),
   };
 };

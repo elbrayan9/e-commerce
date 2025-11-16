@@ -2,6 +2,7 @@ import { ProductsMongoDAO } from "../dao/mongo/ProductsMongo.dao.js";
 import { CartsMongoDAO } from "../dao/mongo/CartsMongo.dao.js";
 import { UsersMongoDAO } from "../dao/mongo/UsersMongo.dao.js";
 import { TicketsMongoDAO } from "../dao/mongo/TicketsMongo.dao.js";
+import { PetsMongoDAO } from "../dao/mongo/PetsMongo.dao.js";
 import { nanoid } from "nanoid";
 
 // --- Instancias de DAOs ---
@@ -9,6 +10,7 @@ const productsDAO = new ProductsMongoDAO();
 const cartsDAO = new CartsMongoDAO();
 const usersDAO = new UsersMongoDAO();
 const ticketsDAO = new TicketsMongoDAO();
+const petsDAO = new PetsMongoDAO();
 
 // --- Repositorios (Lógica de Negocio) ---
 
@@ -92,3 +94,4 @@ class CartRepository {
 export const productService = new ProductRepository();
 export const cartService = new CartRepository();
 export const userService = new UsersMongoDAO(); // El DAO es suficiente aquí por ahora
+export const petService = new PetsMongoDAO();
