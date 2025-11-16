@@ -42,7 +42,7 @@ class CartRepository {
   async addProductToCart(cid, pid) {
     const cart = await this.getCartById(cid);
     const productIndex = cart.products.findIndex(
-      (p) => p.product._id.toString() === pid
+      (p) => p.product && p.product.toString() === pid
     );
 
     if (productIndex > -1) {

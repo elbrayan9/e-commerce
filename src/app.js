@@ -3,13 +3,11 @@ import handlebars from "express-handlebars";
 import mongoose from "mongoose";
 import path from "path";
 import { fileURLToPath } from "url";
-import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import passport from "passport";
 import initializePassport from "./config/passport.config.js";
-
-// Cargar variables de entorno
-dotenv.config();
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpecs } from "./config/swagger.config.js";
 
 // Routers
 import productsRouter from "./routes/products.router.js";
@@ -39,20 +37,13 @@ app.engine("handlebars", handlebars.engine());
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "handlebars");
 
-// --- Conexión a MongoDB ---
-const MONGO_URI = process.env.MONGO_URI;
-mongoose
-  .connect(MONGO_URI)
-  .then(() => console.log("✅ Conectado a la base de datos"))
-  .catch((error) => console.error("❌ Error de conexión:", error));
-
 // --- Rutas ---
 app.use("/", viewsRouter);
 app.use("/api/products", productsRouter);
 app.use("/api/carts", cartsRouter);
 app.use("/api/sessions", sessionsRouter);
 app.use("/api/mocks", mocksRouter);
+// Ruta para la documentación de Swagger
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);
-});
+export default app;

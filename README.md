@@ -1,114 +1,181 @@
-# E-commerce Backend API 🚀
+# Backend API E-commerce 🚀
 
-Bienvenido al backend de nuestro E-commerce, una robusta API RESTful construida con Node.js, Express y MongoDB. Este proyecto no solo gestiona productos y carritos, sino que también implementa una arquitectura de software profesional en capas (DAO, DTO, Repository) y un sistema de autenticación y autorización completo basado en roles con JWT.
+[![Node.js](https://img.shields.io/badge/Node.js-18.x-339933?style=for-the-badge&logo=node.js)](https://nodejs.org/)
+[![Express.js](https://img.shields.io/badge/Express-4.x-000000?style=for-the-badge&logo=express)](https://expressjs.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-4.x-47A248?style=for-the-badge&logo=mongodb)](https://www.mongodb.com/)
+[![Docker](https://img.shields.io/badge/Docker-blue?style=for-the-badge&logo=docker&labelColor=white)](https://hub.docker.com/r/brianoviedo/ecommerce-backend)
+[![Swagger](https://img.shields.io/badge/Swagger-API%20Docs-85EA2D?style=for-the-badge&logo=swagger)](http://localhost:8080/api-docs)
+
+Bienvenido al backend de nuestro E-commerce. Una API RESTful robusta construida con Node.js, Express y MongoDB, diseñada con una arquitectura profesional en capas, autenticación JWT, y completamente dockerizada para un despliegue sencillo.
+
+---
 
 ## ✨ Características Principales
 
-- **Arquitectura Profesional en Capas**: Código desacoplado, mantenible y escalable gracias a la implementación de patrones de diseño como DAO, DTO y Repository.
-- **Gestión de Productos Completa**: API REST para administrar el ciclo de vida de los productos, con rutas protegidas exclusivas para administradores.
-- **Sistema de Carritos Avanzado**: Funcionalidad completa para la gestión de carritos de compra por usuario.
-- **Flujo de Compra Real**: Una simulación de compra que verifica el stock en tiempo real, genera tickets de compra y actualiza el carrito con los productos no procesados.
+- **Arquitectura Profesional**: Código desacoplado y mantenible (DAO, DTO, Repository).
+- **Gestión Completa**: APIs para administrar Productos, Carritos y Usuarios.
+- **Flujo de Compra Real**: Lógica de compra que verifica stock, genera Tickets y actualiza carritos.
 - **Autenticación y Autorización (RBAC)**:
-  - Registro de usuarios con **encriptación de contraseñas** (bcrypt).
-  - Login seguro mediante **JSON Web Tokens (JWT)** almacenados en cookies `HttpOnly`.
-  - Sistema de **roles (Usuario/Administrador)** para proteger endpoints y restringir acciones específicas.
-- **Generación de Datos de Prueba (Mocking)**: Endpoints dedicados para generar datos de prueba (`faker-js`) tanto simulados como para inserción directa en la base de datos, facilitando el desarrollo y las pruebas de rendimiento.
-- **Seguridad de Datos**: Uso de **DTO (Data Transfer Objects)** para evitar la exposición de información sensible del usuario en las respuestas de la API.
-- **Manejo Seguro de Secretos**: Configuración a través de **variables de entorno** (`.env`) para proteger credenciales de la base de datos.
-- **Vistas Renderizadas desde el Servidor**: Páginas básicas con Handlebars para la visualización de productos y carritos.
+  - Registro con contraseñas encriptadas (`bcrypt`).
+  - Login seguro con **JSON Web Tokens (JWT)** en cookies `HttpOnly`.
+  - Protección de rutas por **roles (Usuario/Admin)**.
+- **Contenerización**: Imagen de **Docker** lista para producción disponible en DockerHub.
+- **Documentación API**: Endpoints de `Sessions` documentados con **Swagger (OpenAPI)**.
+- **Testing Funcional**: Pruebas de integración para el router de `Carts` con **Mocha, Chai y Supertest**.
+- **Generación de Datos (Mocking)**: Endpoints con `faker-js` para generar datos de prueba.
+- **Seguridad**: Uso de **DTOs** para proteger la información sensible del usuario.
 
-## 🏛️ Arquitectura del Proyecto
-
-El servidor sigue una arquitectura en capas para separar responsabilidades, haciendo el código más limpio y fácil de mantener.
-
-- **`Routes`**: Define los endpoints de la API. Su única responsabilidad es recibir peticiones HTTP, llamar a la capa de Repositorio y enviar una respuesta.
-- **`Repositories`**: Contiene toda la **lógica de negocio**. Orquesta las operaciones y utiliza los DAOs para interactuar con la base de datos. Aquí reside la "inteligencia" de la aplicación.
-- **`DAO (Data Access Object)`**: Es la única capa que tiene contacto directo con la base de datos. Abstrae las operaciones de persistencia (CRUD) para que el resto de la aplicación no dependa directamente de Mongoose.
-- **`DTO (Data Transfer Object)`**: Patrón utilizado para modelar los datos que se transfieren entre las capas y hacia el cliente, asegurando que solo se exponga la información necesaria.
-- **`Middlewares`**: Piezas de software que interceptan las peticiones para realizar tareas como la autenticación (Passport) y la autorización por roles.
+---
 
 ## 🛠️ Stack Tecnológico
 
-- **Entorno**: Node.js
-- **Framework**: Express
-- **Base de Datos**: MongoDB (con MongoDB Atlas)
-- **ODM**: Mongoose
-- **Autenticación**: Passport.js (Estrategia JWT)
-- **Seguridad**: JSON Web Token (`jsonwebtoken`), `bcrypt`
-- **Manejo de Peticiones**: `cookie-parser`
-- **Variables de Entorno**: `dotenv`
-- **Generación de Datos (Mocking)**: `@faker-js/faker`
-- **IDs Únicos**: `nanoid` (para códigos de ticket)
-- **Vistas**: Express Handlebars
+| Categoría         | Tecnología                                             |
+| :---------------- | :----------------------------------------------------- |
+| **Core**          | Node.js, Express                                       |
+| **Base de Datos** | MongoDB, Mongoose, Mongoose Paginate v2                |
+| **Seguridad**     | JWT (`jsonwebtoken`), `bcrypt`, Passport.js            |
+| **Documentación** | Swagger (`swagger-jsdoc`, `swagger-ui-express`)        |
+| **Testing**       | Mocha, Chai, Supertest                                 |
+| **Despliegue**    | Docker                                                 |
+| **Utilidades**    | `@faker-js/faker`, `nanoid`, `dotenv`, `cookie-parser` |
+
+---
+
+## 🏛️ Arquitectura del Proyecto
+
+El servidor sigue una arquitectura en capas para separar responsabilidades:
+
+- **`Routes`**: Define los endpoints de la API. Llama a la capa de Repositorio.
+- **`Repositories`**: Contiene toda la **lógica de negocio**. Orquesta las operaciones y utiliza los DAOs.
+- **`DAO (Data Access Object)`**: Es la única capa que habla con la base de datos (abstrae Mongoose).
+- **`DTO (Data Transfer Object)`**: Modela los datos para evitar exponer información sensible.
+- **`Middlewares`**: Intercepta peticiones para autenticación (Passport) y autorización (Roles).
+
+---
 
 ## 🚀 Cómo Empezar
 
 Sigue estos pasos para levantar el proyecto en tu entorno local.
 
-### 1. Clonar el Repositorio
+### 1. Prerrequisitos
+
+Asegúrate de tener instalado:
+
+- Node.js (v18+)
+- Git
+- Docker Desktop (opcional, para construir la imagen)
+
+### 2. Clonar el Repositorio
 
 ```bash
 git clone https://URL_DE_TU_REPOSITORIO.git
 cd nombre-del-proyecto
 ```
 
-### 2. Instalar Dependencias
+### 3. Instalar Dependencias
 
 ```bash
 npm install
 ```
 
-### 3. Configurar Variables de Entorno
+### 4. Configurar Variables de Entorno
 
-Crea un archivo `.env` en la raíz del proyecto y añade tu URL de conexión a MongoDB.
+Crea un archivo `.env` en la raíz del proyecto.
 
 ```
 MONGO_URI="mongodb+srv://tu_usuario:tu_password@cluster..."
+PORT=8080
 ```
 
-### 4. Iniciar el Servidor
+### 5. Iniciar el Servidor
+
+¡Importante! El servidor ahora se inicia con `npm start` (que usa `src/server.js`).
 
 ```bash
-node src/app.js
+npm start
 ```
 
 El servidor estará corriendo en `http://localhost:8080`.
+
+---
+
+## 🧪 Pruebas y Calidad
+
+Este proyecto incluye pruebas de integración y documentación de API.
+
+### 1. Ejecutar Pruebas Funcionales
+
+Para correr los tests de integración del router de Carritos:
+
+```bash
+npm test
+```
+
+### 2. Ver Documentación de la API
+
+Una vez que el servidor esté corriendo (`npm start`), puedes ver la documentación de Swagger en:
+**[http://localhost:8080/api-docs](http://localhost:8080/api-docs)**
+
+---
+
+## 🐳 Despliegue con Docker
+
+Este proyecto está 100% dockerizado y listo para desplegar.
+
+### 1. Link a la Imagen
+
+La imagen oficial está alojada en DockerHub:
+**[https://hub.docker.com/r/brianoviedo/ecommerce-backend](https://hub.docker.com/r/brianoviedo/ecommerce-backend)**
+
+### 2. Ejecutar la Imagen
+
+Puedes ejecutar el contenedor directamente desde DockerHub con este comando. No olvides pasar tu `MONGO_URI` como variable de entorno.
+
+```bash
+docker run -d -p 8080:8080 \
+  -e MONGO_URI="tu_string_de_conexion_a_mongo_atlas" \
+  --name ecommerce-api \
+  brianoviedo/ecommerce-backend
+```
+
+### 3. Construir la Imagen (Local)
+
+Si prefieres construir la imagen tú mismo:
+
+```bash
+docker build -t brianoviedo/ecommerce-backend .
+```
+
+---
 
 ## 📚 Documentación de la API
 
 ### Mocks y Pruebas (`/api/mocks`)
 
-- **`GET /mockingusers`**: Genera y devuelve 50 usuarios simulados (falsos) al vuelo, sin guardar en la base de datos.
-- **`POST /generateData`**: Genera e inserta usuarios reales en la base de datos con datos de prueba. Recibe un body opcional: `{ "users": 5 }` para especificar la cantidad.
-- **`GET /getgeneratedusers`**: (Endpoint de diagnóstico) Devuelve una lista de todos los usuarios actualmente en la base de datos.
+- **`GET /mockingusers?qty=N`**: Genera `N` usuarios simulados (por defecto 50).
+- **`GET /mockingpets`**: Genera 100 mascotas simuladas.
+- **`POST /generateData`**: Inserta datos de prueba en la BD. Body: `{ "users": 5, "pets": 3 }`.
+- **`GET /getgeneratedusers`**: (Diagnóstico) Devuelve todos los usuarios.
+- **`GET /getgeneratedpets`**: (Diagnóstico) Devuelve todas las mascotas.
 
 ### Sesiones (`/api/sessions`)
 
+_(Documentado en Swagger en `/api-docs`)_
+
 - **`POST /register`**: Registra un nuevo usuario.
-- **`POST /login`**: Inicia sesión. Devuelve una cookie `coderCookieToken` con el JWT.
-- **`GET /current`**: Devuelve los datos del usuario logueado (usando un DTO).
+- **`POST /login`**: Inicia sesión (devuelve cookie JWT).
+- **`GET /current`**: Devuelve el usuario actual (usando DTO).
 
 ### Productos (`/api/products`)
 
-- **`GET /`**: Lista todos los productos con paginación.
-- **`GET /:pid`**: Obtiene un producto por su ID.
-- **`POST /`**: 🔒 **(Admin)** Crea un nuevo producto.
+- **`GET /`**: Lista productos (paginado).
+- **`GET /:pid`**: Obtiene un producto.
+- **`POST /`**: 🔒 **(Admin)** Crea un producto.
 - **`PUT /:pid`**: 🔒 **(Admin)** Actualiza un producto.
 - **`DELETE /:pid`**: 🔒 **(Admin)** Elimina un producto.
 
 ### Carritos (`/api/carts`)
 
-- **`POST /`**: Crea un nuevo carrito.
-- **`GET /:cid`**: Obtiene un carrito con sus productos (usando `populate`).
+- **`GET /:cid`**: Obtiene un carrito.
 - **`POST /:cid/product/:pid`**: 🔒 **(Usuario)** Agrega un producto al carrito.
-- **`POST /:cid/purchase`**: 🔒 **(Usuario)** Finaliza el proceso de compra del carrito.
-  - Verifica el stock de cada producto.
-  - Genera un ticket de compra con los productos procesados.
-  - Actualiza el stock de los productos comprados.
-  - Devuelve una lista de los productos que no se pudieron comprar.
-  - Actualiza el carrito para que solo contenga los productos no comprados.
-
-## 📄 Vistas del Servidor
-
-- **`/products`**: Muestra una lista paginada de productos.
-- **`/carts/:cid`**: Muestra el detalle de un carrito específico.
+- **`POST /:cid/purchase`**: 🔒 **(Usuario)** Finaliza la compra (genera ticket y actualiza stock).
